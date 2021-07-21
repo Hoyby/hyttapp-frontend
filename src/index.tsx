@@ -1,10 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import Layout from './components/Layout';
+import Login from './components/Login';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  // <React.StrictMode>
+
+    <Layout>
+      <Login/>
+    </Layout>
+
+  // </React.StrictMode>
+  ,
   document.getElementById('root')
 );
