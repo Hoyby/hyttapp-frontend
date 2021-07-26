@@ -1,5 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react'
+import jwt from 'jwt-decode'
+
 
 export default function Login() {
 
@@ -8,44 +10,102 @@ export default function Login() {
         password: ''
     })
 
-    const [tokens, settokens] = useState({
-        accessToken: '',
-        refreshToken: '',
-    })
+    type TUserData = {
+        payload: {
+            id: string,
+            username: string
+        }
+    }
 
-    const [responseData, setResponseData] = useState({
-        username: '',
-        email: '',
+    const [userData, setUserData] = useState({
+        id: '',
+        username: ''
     })
 
     const changeHandler = (e: { target: { name: any; value: any; }; }) => {
         setUserInfo({ ...userInfo, [e.target.name]: e.target.value })
     }
 
+
+    //for testing
+    const handleButton = (event: any) => {
+        axios.get("http://localhost:8000/users", {
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+            },
+            withCredentials: true,
+        })
+            .then(res => {
+                console.log(res);
+            });
+    }
+
+
+
+
+
     const handleLogIn = (event: any) => {
         event.preventDefault()
-        axios.post('http://localhost:8000/auth/', userInfo)
-            .then(response => {
-                settokens({ ...tokens, accessToken: response.data.accessToken, refreshToken: response.data.refreshToken })
 
-                axios.get('http://localhost:8000/users/', {
-                    headers: {
-                        Authorization: ('Bearer ' + response.data.accessToken)
-                    }
-                })
-                    .then(function (_response) {
-                        console.log("accessToken is working");
-                        setResponseData({ ...responseData, username: _response.data[0].name, email: _response.data.email })
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    })
+        axios.post('http://localhost:8000/auth/login',
+            userInfo,
+            {
+                withCredentials: true,
+            })
+            .then(res => {
+                const accessToken = res.data.accessToken
+                const user = jwt(accessToken) as TUserData
+                localStorage.setItem('accessToken', res.data.accessToken)
+
+                setUserData({ ...userData, id: user.payload.id, username: user.payload.username })
 
             })
             .catch(error => {
                 console.log(error)
             })
+        //TODO: Hide login panel
+    }
 
+
+
+
+    const handleRefresh = (event: any) => {
+        event.preventDefault()
+
+        axios.get('http://localhost:8000/auth/refresh_token/', {
+            withCredentials: true,
+        })
+            .then(res => {
+                const accessToken = res.data.accessToken
+                const user = jwt(accessToken) as TUserData
+                localStorage.setItem('accessToken', res.data.accessToken)
+
+                setUserData({ ...userData, id: user.payload.id, username: user.payload.username })
+
+            })
+            .catch(error => {
+                console.log(error)
+            })
+    }
+
+
+    const handleLogOut = (event: any) => {
+        event.preventDefault()
+
+        axios.delete('http://localhost:8000/auth/refresh_token/', {
+            withCredentials: true,
+            headers: {
+                'Authorization': `Basic ${localStorage.getItem('accesssToken')}}`,
+            },
+        })
+            .then(res => {
+                localStorage.removeItem('accessToken')
+                setUserData({ ...userData, id: '', username: '' })
+
+            })
+            .catch(error => {
+                console.log(error)
+            })
     }
 
 
@@ -77,14 +137,19 @@ export default function Login() {
                     <button onClick={handleLogIn}>Log in</button>
                 </div>
 
-                <div className="container">
-                    <button type="submit">Logout</button>
-                    <button type="submit">Refresh</button>
-                </div>
+
             </form>
+            <div className="container">
+                <button onClick={handleLogOut}>Log out</button>
+                <button onClick={handleRefresh}>Refresh</button>
+                <button onClick={handleButton}>Button</button>
+
+            </div>
 
             <p></p>
-            <p>username: {responseData.username}</p>
+            <p>id: {userData.id}</p>
+            <p>username: {userData.username}</p>
+
         </div>
     )
 }
