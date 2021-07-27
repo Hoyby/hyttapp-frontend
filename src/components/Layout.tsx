@@ -2,18 +2,13 @@ import React from 'react'
 import Navbar from './Navbar'
 
 export default function Layout({ children }: { children: any }) {
-    return (
-        <div className="layout">
+  return (
+    <div className="layout">
+      <Navbar />
 
-            < Navbar />
+      <div className="content">{children}</div>
 
-            <div className="content">
-                {children}
-            </div>
-
-            <footer>
-                
-            </footer>
-        </div>
-    )
+      <footer></footer>
+    </div>
+  )
 }
