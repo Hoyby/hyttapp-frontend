@@ -105,14 +105,14 @@ export default function Login() {
   }
 
   return (
-    <div>
-      <h1>Login</h1>
-      <form method="post" action="localhost:8000/users">
-        <div className="container">
+    <div className="border-4 w-96 flex flex-col m-auto items-center mt-40">
+      <h1 className="mb-4 font-medium">Login</h1>
+      <form className="border-4">
+        <div className="flex flex-col items-center" >
           <label htmlFor="email">
             <b>Email</b>
           </label>
-          <input
+          <input className="border-2 w-60 m-2"
             required
             type="text"
             name="email"
@@ -124,7 +124,7 @@ export default function Login() {
           <label htmlFor="psw">
             <b>Password</b>
           </label>
-          <input
+          <input className="border-2 w-60 m-2"
             type="password"
             name="password"
             tokens-testid="password"
@@ -133,13 +133,13 @@ export default function Login() {
             onChange={changeHandler}
           />
 
-          <button onClick={handleLogIn}>Log in</button>
+          <button onClick={handleLogIn} className="w-20 border-2 m-4">Log in</button>
         </div>
       </form>
-      <div className="container">
-        <button onClick={handleLogOut}>Log out</button>
-        <button onClick={handleRefresh}>Refresh</button>
-        <button onClick={handleButton}>Button</button>
+      <div className="items-center">
+        <button className="m-2 border-2 p-1" onClick={handleLogOut}>Log out</button>
+        <button className="m-2 border-2 p-1" onClick={handleRefresh}>Refresh</button>
+        <button className="m-2 border-2 p-1" onClick={handleButton}>Button</button>
       </div>
 
       <p></p>
