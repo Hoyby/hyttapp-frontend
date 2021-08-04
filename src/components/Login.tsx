@@ -1,11 +1,16 @@
 import axios from 'axios'
 import React, { useState } from 'react'
 import jwt from 'jwt-decode'
+import { AuthContext } from "../App";
 
 export default function Login() {
+  const { dispatch } = React.useContext(AuthContext);
+
   const [userInfo, setUserInfo] = useState({
     email: '',
     password: '',
+    isSubmitting: false,
+    errorMessage: null,
   })
 
   type TUserData = {
@@ -40,6 +45,11 @@ export default function Login() {
 
   const handleLogIn = (event: any) => {
     event.preventDefault()
+    setUserInfo({
+      ...userInfo,
+      isSubmitting: true,
+      errorMessage: null
+    });
 
     axios
       .post('http://localhost:8000/auth/login', userInfo, {
@@ -50,6 +60,8 @@ export default function Login() {
         const user = jwt(accessToken) as TUserData
         localStorage.setItem('accessToken', res.data.accessToken)
 
+        dispatch({ type: 'LOGIN', payload: res.data })
+
         setUserData({
           ...userData,
           id: user.payload.id,
@@ -58,6 +70,12 @@ export default function Login() {
       })
       .catch((error) => {
         console.log(error)
+
+        setUserInfo({
+          ...userInfo,
+          isSubmitting: false,
+          errorMessage: error.message || error.statusText,
+        })
       })
     //TODO: Hide login panel
   }
@@ -108,11 +126,12 @@ export default function Login() {
     <div className="border-4 w-96 flex flex-col m-auto items-center mt-40">
       <h1 className="mb-4 font-medium">Login</h1>
       <form className="border-4">
-        <div className="flex flex-col items-center" >
+        <div className="flex flex-col items-center">
           <label htmlFor="email">
             <b>Email</b>
           </label>
-          <input className="border-2 w-60 m-2"
+          <input
+            className="border-2 w-60 m-2"
             required
             type="text"
             name="email"
@@ -124,7 +143,8 @@ export default function Login() {
           <label htmlFor="psw">
             <b>Password</b>
           </label>
-          <input className="border-2 w-60 m-2"
+          <input
+            className="border-2 w-60 m-2"
             type="password"
             name="password"
             tokens-testid="password"
@@ -133,18 +153,27 @@ export default function Login() {
             onChange={changeHandler}
           />
 
-          <button onClick={handleLogIn} className="w-20 border-2 m-4">Log in</button>
+          <button onClick={handleLogIn} className="w-20 border-2 m-4">
+            Log in
+          </button>
         </div>
       </form>
       <div className="items-center">
-        <button className="m-2 border-2 p-1" onClick={handleLogOut}>Log out</button>
-        <button className="m-2 border-2 p-1" onClick={handleRefresh}>Refresh</button>
-        <button className="m-2 border-2 p-1" onClick={handleButton}>Button</button>
+        <button className="m-2 border-2 p-1" onClick={handleLogOut}>
+          Log out
+        </button>
+        <button className="m-2 border-2 p-1" onClick={handleRefresh}>
+          Refresh
+        </button>
+        <button className="m-2 border-2 p-1" onClick={handleButton}>
+          Button
+        </button>
       </div>
 
       <p></p>
       <p>id: {userData.id}</p>
       <p>username: {userData.username}</p>
+      <p>error: {userInfo.errorMessage}</p>
     </div>
   )
 }

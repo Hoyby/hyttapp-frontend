@@ -1,19 +1,19 @@
 import React, { useState } from 'react'
-import ReactDOM from 'react-dom'
+import { render } from 'react-dom'
+import App from './App'
 import Dashboard from './components/Dashboard'
 import Layout from './components/Layout'
 import Login from './components/Login'
-import './index.css';
+import './index.css'
 
+// const store = createStore<StoreState>(enthusiasm, {
+//   enthusiasmLevel: 1,
+//   languageName: 'TypeScript',
+// })
 
-ReactDOM.render(
-
-  // <React.StrictMode>
-
+render(
   <Layout>
-    <Login />
+    <App />
   </Layout>,
-
-  // </React.StrictMode>
-  document.getElementById('root')
+  document.getElementById('root') as HTMLElement
 )
