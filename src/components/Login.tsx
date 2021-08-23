@@ -1,10 +1,9 @@
 import axios from 'axios'
 import React, { useState } from 'react'
-import jwt from 'jwt-decode'
-import { AuthContext } from "../App";
+import { AuthContext } from '../App'
 
 export default function Login() {
-  const { dispatch } = React.useContext(AuthContext);
+  const { dispatch } = React.useContext(AuthContext)
 
   const [userInfo, setUserInfo] = useState({
     email: '',
@@ -29,55 +28,36 @@ export default function Login() {
     setUserInfo({ ...userInfo, [e.target.name]: e.target.value })
   }
 
-  //for testing
-  const handleButton = (event: any) => {
-    axios
-      .get('http://localhost:8000/users', {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
-        },
-        withCredentials: true,
-      })
-      .then((res) => {
-        console.log(res)
-      })
-  }
-
   const handleLogIn = (event: any) => {
     event.preventDefault()
     setUserInfo({
       ...userInfo,
       isSubmitting: true,
-      errorMessage: null
-    });
+      errorMessage: null,
+    })
 
     axios
       .post('http://localhost:8000/auth/login', userInfo, {
         withCredentials: true,
       })
       .then((res) => {
-        const accessToken = res.data.accessToken
-        const user = jwt(accessToken) as TUserData
-        localStorage.setItem('accessToken', res.data.accessToken)
-
         dispatch({ type: 'LOGIN', payload: res.data })
 
-        setUserData({
-          ...userData,
-          id: user.payload.id,
-          username: user.payload.username,
-        })
+        // setUserData({
+        //   ...userData,
+        //   id: user.payload.id,
+        //   username: user.payload.username,
+        // })
       })
       .catch((error) => {
-        console.log(error)
+        console.log(error.message || error.statusText)
 
         setUserInfo({
           ...userInfo,
           isSubmitting: false,
-          errorMessage: error.message || error.statusText,
+          errorMessage: error.response.data.error,
         })
       })
-    //TODO: Hide login panel
   }
 
   const handleRefresh = (event: any) => {
@@ -89,14 +69,14 @@ export default function Login() {
       })
       .then((res) => {
         const accessToken = res.data.accessToken
-        const user = jwt(accessToken) as TUserData
+        // const user = jwt(accessToken) as TUserData
         localStorage.setItem('accessToken', res.data.accessToken)
 
-        setUserData({
-          ...userData,
-          id: user.payload.id,
-          username: user.payload.username,
-        })
+        // setUserData({
+        //   ...userData,
+        //   id: user.payload.id,
+        //   username: user.payload.username,
+        // })
       })
       .catch((error) => {
         console.log(error)
@@ -165,15 +145,13 @@ export default function Login() {
         <button className="m-2 border-2 p-1" onClick={handleRefresh}>
           Refresh
         </button>
-        <button className="m-2 border-2 p-1" onClick={handleButton}>
-          Button
-        </button>
       </div>
 
-      <p></p>
+      
+      <p className="text-red-500">{userInfo.errorMessage}</p>
+      <br/>
       <p>id: {userData.id}</p>
       <p>username: {userData.username}</p>
-      <p>error: {userInfo.errorMessage}</p>
     </div>
   )
 }

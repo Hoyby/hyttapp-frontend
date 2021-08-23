@@ -1,6 +1,8 @@
 import React, {useReducer, createContext} from 'react'
 import Dashboard from './components/Dashboard'
 import Login from './components/Login'
+import jwt from 'jwt-decode'
+
 
 export const AuthContext: any = createContext('auth')
 
@@ -13,8 +15,8 @@ const initialState = {
 const reducer = (state: any, action: any) => {
   switch (action.type) {
     case 'LOGIN':
-      localStorage.setItem('user', JSON.stringify(action.payload.user))
-      localStorage.setItem('token', JSON.stringify(action.payload.token))
+      localStorage.setItem('accessToken', JSON.stringify(action.payload.accessToken))
+      localStorage.setItem('user', jwt(action.payload.accessToken))
       return {
         ...state,
         isAuthenticated: true,
